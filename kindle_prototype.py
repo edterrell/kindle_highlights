@@ -1,0 +1,308 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+
+#import csv
+#import numpy as np
+import pandas as pd
+import re
+from pathlib import Path
+import textwrap
+from numpy.random import default_rng
+rng = default_rng()
+
+# Get highlights directly from 'My Clippings.txt'
+
+def clean_text(text):
+    """Remove BOM and unwanted whitespace/control characters."""
+    if text is None:
+        return text
+    # Remove BOM (zero-width no-break space)
+    text = text.replace('\ufeff', '')
+    # Remove brackets with ref numbers
+    text = re.sub(r'\[\d+\]', '', text)
+    # Strip leading/trailing whitespace including newlines
+    text = text.strip()
+    return text
+
+def parse_kindle_highlights(filepath):
+    with open(filepath, 'r', encoding='utf-8-sig') as file:
+        lines = [clean_text(line) for line in file if clean_text(line)]
+    highlights = []
+    current_title = None
+    current_metadata = None
+    current_text_lines = []
+
+    for line in lines:
+        if line == "==========":
+            if current_title and current_metadata and current_text_lines:
+                highlight_text = ' '.join(current_text_lines).strip()
+                highlights.append({
+                    'title': clean_text(current_title),
+                    'metadata': clean_text(current_metadata),
+                    'highlight': highlight_text
+                })
+            # Reset
+            current_title = None
+            current_metadata = None
+            current_text_lines = []
+            continue
+        if not current_title:
+            current_title = line
+        elif not current_metadata and line.startswith("- Your Highlight"):
+            current_metadata = line
+        elif current_metadata:
+            current_text_lines.append(line)
+
+    # Build DataFrame
+    df = pd.DataFrame(highlights)
+    # Extract location and added_on
+    if not df.empty:
+        df[['location', 'added_on']] = df['metadata'].str.extract(
+            r'Location ([\d\-]+) \| Added on (.+)'
+        )
+        df['location']  = df['location'].apply(clean_text)
+        df['added_on']  = df['added_on'].apply(clean_text)
+        df['title']     = df['title'].apply(clean_text)
+        df['highlight'] = df['highlight'].apply(clean_text)
+    return df[['title', 'location', 'added_on', 'highlight']]
+
+
+# Get context (lines above and below with same title)
+def get_context(df, index):
+    try:
+        current_row = df.loc[index]
+    except KeyError:
+        return {
+            'title': None,
+            'above': None,
+            'current': None,
+            'below': None
+        }
+    title = current_row['title']
+    same_title_df = df[df['title'] == title]
+
+    if index not in same_title_df.index:
+        return {
+            'title': title,
+            'above': None,
+            'current': current_row['highlight'],
+            'below': None
+        }
+    locs = same_title_df.index.tolist()
+    i = locs.index(index)
+    above = same_title_df.loc[locs[i - 1]]['highlight'] if i > 0 else None
+    below = same_title_df.loc[locs[i + 1]]['highlight'] if i < len(locs) - 1 else None
+    current = same_title_df.loc[index]['highlight']
+    return {
+        'title': title,
+        'above': above,
+        'current': current,
+        'below': below
+    }
+
+# Exclusion list
+def get_random_highlight_excluding(df, exclude_keywords):
+    # Create a mask to exclude titles containing any of the keywords (case-insensitive)
+    # ~ inverts the boolean series (everything except the keywords)
+    mask = ~df['title'].str.contains('|'.join(exclude_keywords), case=False, na=False)
+    filtered_df = df[mask]  # Apply the mask to get the filtered DataFrame
+    
+    # If no titles remain after filtering, raise an error
+    if filtered_df.empty:
+        raise ValueError("No titles remaining after exclusions.")
+    
+    # df.sample is a function that returns 1 row from the df
+    # row selection uses default_rng for consistent randomness but can be replaced (e.g. 42 for testing)
+    random_row = filtered_df.sample(n=1, random_state=rng.integers(1_000_000))
+    
+    # Return the row itself and its original index in the full DataFrame
+    return random_row.iloc[0], random_row.index[0]
+
+
+# show all highlights for a specific title
+def show_highlights_for_title(df):
+    keyword = input("Enter the title or author name. Return generates a list: ").strip().lower()
+
+    # Create a cleaned version of the title column
+    df = df.copy()
+    df['clean_title'] = df['title'].fillna('').apply(lambda t: t.replace('\ufeff', '').strip().lower())
+
+    # Find titles that contain the keyword
+    matched_rows = df[df['clean_title'].str.contains(keyword)]
+    matched_titles = matched_rows['title'].unique()
+
+    if len(matched_titles) == 0:
+        print(f"No titles found containing '{keyword}'.")
+        return
+
+    if len(matched_titles) == 1:
+        selected_title = matched_titles[0]
+        print(f"\nShowing highlights for: {selected_title}\n")
+    else:
+        print("\nMultiple titles found:")
+        for i, title in enumerate(matched_titles):
+            print(f"{i}: {title}")
+        
+        try:
+            selection = int(input("\nEnter the number of the title you want: "))
+            selected_title = matched_titles[selection]
+        except (ValueError, IndexError):
+            print("Invalid selection.")
+            return
+
+    # Show highlights using original title
+    print()
+    print(selected_title)
+    matches = df[df['title'] == selected_title]
+    for i, row in matches.iterrows():
+        wrapped(f"[{i}]", row['highlight'])
+        print('-' * 40)
+
+    # Prompt user to export
+    export = input(f"\nExport highlights as csv? (y/n): ").strip().lower()
+    if export == 'y':
+        # Sanitize title: remove special characters, replace spaces with underscores, limit to 40 chars
+        safe_title = re.sub(r'[\\/*?:"<>|(),]', "", selected_title)   # Remove invalid characters
+        safe_title = safe_title.replace(" ", "_")[:40]             # Replace spaces and limit length
+        filename = f"{safe_title}.txt"
+    
+        with open(filename, "w", encoding="utf-8") as f:
+            for i, row in matches.iterrows():
+                f.write(f"[{i}] {row['highlight']}\n{'-'*40}\n")
+
+        print(f"\n✅ Highlights exported to: {filename}")
+
+# helper function for small screens
+def wrapped(label, text, width=40):
+    print(f"{label}:\n{textwrap.fill(text, width)}\n")
+
+# show surrounding context for a highlight
+def context(df, random_index):
+    try:
+        # Now safely get context
+        result = get_context(df, random_index)
+    
+        print(f"\n--- Context ---")
+        print(f"Title:\n{result['title']}\n")
+
+        wrapped("Above highlight", result['above'])
+        wrapped("Current highlight", result['current'])
+        wrapped("Below highlight", result['below'])
+        
+    
+    except ValueError as e:
+        print("Error:", e)
+
+def setup_summary(df):
+    # Kindle Summary of all titles and authors
+    kindle_sum = pd.DataFrame()
+    
+    # Split into title and author columns using regex
+    kindle_sum[['Title', 'Author']] = df['title'].str.extract(r'^(.*)\s\(([^()]+)\)$').copy()
+    
+    # Extract only the year using regex
+    kindle_sum ['Year Read'] = df.added_on.str.extract(r'\b(\d{4})\b').copy()
+    #breakpoint()
+    return kindle_sum
+
+def process_kindle_sum(kindle_sum):
+    kindle_sum = kindle_sum.copy()
+    # Drop duplicates
+    kindle_sum.sort_values('Year Read',inplace=True)
+    kindle_sum = kindle_sum.drop_duplicates("Title",keep='first')
+    
+    # Remove trailing whitespace and clean up title names
+    kindle_sum ['Title'] = kindle_sum['Title'].str.replace(r'\s*\([^)]*\)|[\(\)]', '', regex=True).str.strip()
+    
+    kindle_sum.sort_values('Title',inplace=True)
+    kindle_sum = kindle_sum.reset_index(drop=True)
+    
+    #kindle_sum.sort_values('Author')
+    
+    print (len(kindle_sum))
+    print("\n--- All Books ---\n")
+    
+    # Header row
+    print(f"{'📘 Title':<42} | {'Author':<22} | Year Read")
+    print("-" * 80)
+    
+    for _, row in kindle_sum.iterrows():
+        title = row['Title']
+        author = row['Author']
+        year = row['Year Read']
+        print(f"📘 {title[:40]:<40}  | {author[:20]:<20}  | {year}")
+
+ # Prompt user to export
+    export = input("\nWould you like to export this to summary.csv? (y/n): ").strip().lower()
+    if export == 'y':
+        kindle_sum_export = kindle_sum.copy()
+        kindle_sum_export['Title'] = kindle_sum_export['Title'].str.slice(0, 40)
+        kindle_sum_export.to_csv('summary.csv', index=False)
+        print(f"\n✅ File saved as: summary.csv")
+
+# Begin execution
+def main():
+    
+    path = Path('~/Desktop/My Clippings.txt').expanduser()
+    df = parse_kindle_highlights(str(path))
+    
+    df.sort_values('added_on',inplace=True)
+    kindle_sum = setup_summary(df)
+
+    # Drop clip limit messages
+    clip_message = "You have reached the clipping limit for this item"
+
+    # Remove rows where highlight contains this string
+    df = df[~df['highlight'].str.contains(clip_message, na=False)]
+
+    # drop duplicates that have the same location values
+    df = df.drop_duplicates(subset=['title', 'location'])
+
+    # Get random title - highlight (excludes keywords)
+    # Modify this list to add or change titles to be excluded 
+    exclude_keywords = ["Reggie", "Bicycling"]
+
+    try:
+        row, random_index = get_random_highlight_excluding(df, exclude_keywords)
+        title = row['title']
+        text = row['highlight']
+        cleaned_highlight = re.sub(r"\.\s*\d+", ".", text)
+        print(title)
+        print()
+        print(textwrap.fill(cleaned_highlight, width=40))  # or 40, depending on your layout
+        #print(cleaned_highlight)
+        print()
+
+    except ValueError as e:
+        print("Error:", e)
+
+    return df, random_index, kindle_sum
+
+if __name__ == "__main__":
+    df, random_index, kindle_sum = main()
+
+    while True:
+        choice = input("\n"
+                       "What would you like to do next?\n"
+                       "1. Get context\n"
+                       "2. Show all highlights for a specific title?\n"
+                       "3. Show all titles\n"
+                       "4. Exit\n"
+                       "\n"
+                       "Enter choice (1-4): ")
+        if choice == "1":
+            context(df, random_index)
+        elif choice == "2":
+            # Show all highlights for a specific title
+            show_highlights_for_title(df)
+        elif choice == "3":
+            # Show all titles
+            process_kindle_sum(kindle_sum)
+        elif choice == "4":
+            print("Goodbye!")
+            break
+        else:
+            print("Invalid choice. Try again.")
+
+

@@ -8,6 +8,9 @@ import pandas as pd
 import re
 from pathlib import Path
 import textwrap
+import streamlit as st
+from io import StringIO
+import tempfile
 from numpy.random import default_rng
 rng = default_rng()
 
@@ -241,68 +244,102 @@ def process_kindle_sum(kindle_sum):
         kindle_sum_export.to_csv('summary.csv', index=False)
         print(f"\n✅ File saved as: summary.csv")
 
+
+
 # Begin execution
 def main():
+
+    st.title("Kindle Highlights Viewer")
+    uploaded_file = st.file_uploader(
+        "Upload your 'My Clippings.txt' file", 
+        type=["txt"],
+        key="file_upload_main")
+
+
+    if uploaded_file is not None:
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".txt") as tmp_file:
+            tmp_file.write(uploaded_file.read())
+            tmp_path = tmp_file.name
+        #df = parse_kindle_highlights(tmp_path)
     
-    path = Path('~/Desktop/My Clippings.txt').expanduser()
-    df = parse_kindle_highlights(str(path))
+        st.success("File uploaded successfully!")
+        st.write(f"Temporary file path: `{tmp_path}`")
     
-    df.sort_values('added_on',inplace=True)
-    kindle_sum = setup_summary(df)
+        # Optional: read first few lines for debugging
+        with open(tmp_path, encoding="utf-8") as f:
+            sample = ''.join([next(f) for _ in range(10)])
+        st.text("Sample of uploaded file:")
+        st.code(sample)
+        
+        df = parse_kindle_highlights(tmp_path)
+        #st.dataframe(df)
 
-    # Drop clip limit messages
-    clip_message = "You have reached the clipping limit for this item"
+        df.sort_values('added_on',inplace=True)
+        kindle_sum = setup_summary(df)
 
-    # Remove rows where highlight contains this string
-    df = df[~df['highlight'].str.contains(clip_message, na=False)]
+        # Drop clip limit messages
+        clip_message = "You have reached the clipping limit for this item"
 
-    # drop duplicates that have the same location values
-    df = df.drop_duplicates(subset=['title', 'location'])
+        # Remove rows where highlight contains this string
+        df = df[~df['highlight'].str.contains(clip_message, na=False)]
 
-    # Get random title - highlight (excludes keywords)
-    # Modify this list to add or change titles to be excluded 
-    exclude_keywords = ["Reggie", "Bicycling"]
+        # drop duplicates that have the same location values
+        df = df.drop_duplicates(subset=['title', 'location'])
 
-    try:
-        row, random_index = get_random_highlight_excluding(df, exclude_keywords)
-        title = row['title']
-        text = row['highlight']
-        cleaned_highlight = re.sub(r"\.\s*\d+", ".", text)
-        print(title)
-        print()
-        print(textwrap.fill(cleaned_highlight, width=40))  # or 40, depending on your layout
-        #print(cleaned_highlight)
-        print()
+        # Get random title - highlight (excludes keywords)
+        # Modify this list to add or change titles to be excluded 
+        exclude_keywords = ["Reggie", "Bicycling"]
 
-    except ValueError as e:
-        print("Error:", e)
+        
+        try:
+            row, random_index = get_random_highlight_excluding(df, exclude_keywords)
+            title = row['title']
+            text = row['highlight']
+            cleaned_highlight = re.sub(r"\.\s*\d+", ".", text)
+            print(title)
+            print()
+            print(textwrap.fill(cleaned_highlight, width=40))  
+            # Depending on your layout use width = whatever
+            #print(cleaned_highlight)
+            print()
 
-    return df, random_index, kindle_sum
+        except ValueError as e:
+            print("Error:", e)
+
+        return df, random_index, kindle_sum
+
+    else:
+        st.info("Please upload your 'My Clippings.txt' file to get started.")
+        return None, None, None
+    
+
+DEBUG = True
 
 if __name__ == "__main__":
-    df, random_index, kindle_sum = main()
+    main()
 
-    while True:
-        choice = input("\n"
-                       "What would you like to do next?\n"
-                       "1. Get context\n"
-                       "2. Show all highlights for a specific title?\n"
-                       "3. Show all titles\n"
-                       "4. Exit\n"
-                       "\n"
-                       "Enter choice (1-4): ")
-        if choice == "1":
-            context(df, random_index)
-        elif choice == "2":
-            # Show all highlights for a specific title
-            show_highlights_for_title(df)
-        elif choice == "3":
-            # Show all titles
-            process_kindle_sum(kindle_sum)
-        elif choice == "4":
-            print("Goodbye!")
-            break
-        else:
-            print("Invalid choice. Try again.")
-
+    if not DEBUG:
+        while True:
+            choice = input("\n"
+                           "What would you like to do next?\n"
+                           "1. Get context\n"
+                           "2. Show all highlights for a specific title?\n"
+                           "3. Show all titles\n"
+                           "4. Exit\n"
+                           "\n"
+                           "Enter choice (1-4): ")
+            if choice == "1":
+                context(df, random_index)
+            elif choice == "2":
+                # Show all highlights for a specific title
+                show_highlights_for_title(df)
+            elif choice == "3":
+                # Show all titles
+                process_kindle_sum(kindle_sum)
+            elif choice == "4":
+                print("Goodbye!")
+                break
+            else:
+                print("Invalid choice. Try again.")
+    
 

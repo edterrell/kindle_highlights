@@ -2,6 +2,10 @@ name: streamlit
 channels:
   - defaults
 dependencies:
+  - python=3.8
   - pandas
   - numpy
-prefix: /Users/edwardterrell/opt/anaconda3/envs/streamlit
+  - pip
+  - pip:
+      - streamlit
+      - watchdog

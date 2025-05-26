@@ -296,10 +296,17 @@ def main():
             title = row['title']
             text = row['highlight']
             cleaned_highlight = re.sub(r"\.\s*\d+", ".", text)
+
+            # Remove the print statement below before release
             print(title)
             print()
-            print(textwrap.fill(cleaned_highlight, width=40))  
-            # Depending on your layout use width = whatever
+            print(textwrap.fill(cleaned_highlight, width=40))
+
+            st.subheader(title)
+            st.write("")  # for spacing
+            st.code(textwrap.fill(cleaned_highlight, width=60), language='text')
+  
+            # modify width depending on desired layout
             #print(cleaned_highlight)
             print()
 

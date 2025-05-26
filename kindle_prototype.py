@@ -125,42 +125,60 @@ def get_random_highlight_excluding(df, exclude_keywords):
 
 # show all highlights for a specific title
 def show_highlights_for_title(df):
-    keyword = input("Enter the title or author name. Return generates a list: ").strip().lower()
+    st.subheader("All Highlights for a Specific Title")
 
-    # Create a cleaned version of the title column
-    df = df.copy()
-    df['clean_title'] = df['title'].fillna('').apply(lambda t: t.replace('\ufeff', '').strip().lower())
+    unique_titles = df['title'].dropna().unique()
+    unique_titles.sort()
 
-    # Find titles that contain the keyword
-    matched_rows = df[df['clean_title'].str.contains(keyword)]
-    matched_titles = matched_rows['title'].unique()
+    selected_title = st.selectbox("Select a book title:", unique_titles, index=None)
 
-    if len(matched_titles) == 0:
-        print(f"No titles found containing '{keyword}'.")
-        return
+    if selected_title:
+        if st.button("Show Highlights"):
+            filtered = df[df['title'] == selected_title]
 
-    if len(matched_titles) == 1:
-        selected_title = matched_titles[0]
-        print(f"\nShowing highlights for: {selected_title}\n")
-    else:
-        print("\nMultiple titles found:")
-        for i, title in enumerate(matched_titles):
-            print(f"{i}: {title}")
-        
-        try:
-            selection = int(input("\nEnter the number of the title you want: "))
-            selected_title = matched_titles[selection]
-        except (ValueError, IndexError):
-            print("Invalid selection.")
-            return
+            st.markdown(f"**{len(filtered)} highlights found for:** _{selected_title}_")
+            for i, row in filtered.iterrows():
+                highlight = row['highlight']
+                cleaned = re.sub(r"\.\s*\d+", ".", highlight)
+                st.markdown(f"• {cleaned}")
+
+
+  #keyword = input("Enter the title or author name. Return generates a list: ").strip().lower()
+
+  ## Create a cleaned version of the title column
+  #df = df.copy()
+  #df['clean_title'] = df['title'].fillna('').apply(lambda t: t.replace('\ufeff', '').strip().lower())
+
+  ## Find titles that contain the keyword
+  #matched_rows = df[df['clean_title'].str.contains(keyword)]
+  #matched_titles = matched_rows['title'].unique()
+
+  #if len(matched_titles) == 0:
+  #    print(f"No titles found containing '{keyword}'.")
+  #    return
+
+  #if len(matched_titles) == 1:
+  #    selected_title = matched_titles[0]
+  #    print(f"\nShowing highlights for: {selected_title}\n")
+  #else:
+  #    print("\nMultiple titles found:")
+  #    for i, title in enumerate(matched_titles):
+  #        print(f"{i}: {title}")
+  #    
+  #    try:
+  #        selection = int(input("\nEnter the number of the title you want: "))
+  #        selected_title = matched_titles[selection]
+  #    except (ValueError, IndexError):
+  #        print("Invalid selection.")
+  #        return
 
     # Show highlights using original title
-    print()
-    print(selected_title)
-    matches = df[df['title'] == selected_title]
-    for i, row in matches.iterrows():
-        wrapped(f"[{i}]", row['highlight'])
-        print('-' * 40)
+    #print()
+    #print(selected_title)
+    #matches = df[df['title'] == selected_title]
+    #for i, row in matches.iterrows():
+    #    wrapped(f"[{i}]", row['highlight'])
+    #    print('-' * 40)
 
     # Prompt user to export
     export = input(f"\nExport highlights as csv? (y/n): ").strip().lower()

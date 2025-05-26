@@ -211,41 +211,58 @@ def setup_summary(df):
     return kindle_sum
 
 def process_kindle_sum(kindle_sum):
+    import io
+
     kindle_sum = kindle_sum.copy()
-    # Drop duplicates
-    kindle_sum.sort_values('Year Read',inplace=True)
-    kindle_sum = kindle_sum.drop_duplicates("Title",keep='first')
-    
-    # Remove trailing whitespace and clean up title names
-    kindle_sum ['Title'] = kindle_sum['Title'].str.replace(r'\s*\([^)]*\)|[\(\)]', '', regex=True).str.strip()
-    
-    kindle_sum.sort_values('Title',inplace=True)
-    kindle_sum = kindle_sum.reset_index(drop=True)
-    
-    #kindle_sum.sort_values('Author')
-    
-    #print (len(kindle_sum))
+
+    # --- Clean and prep ---
+    kindle_sum = kindle_sum.drop_duplicates("Title", keep='first')
+    kindle_sum['Title'] = kindle_sum['Title'].str.replace(r'\s*\([^)]*\)|[\(\)]', '', regex=True).str.strip()
+    kindle_sum['Author'] = kindle_sum['Author'].astype(str).str.strip()
+    kindle_sum['Year Read'] = kindle_sum['Year Read'].astype(str).str.strip()
+
+    # --- Sort selection ---
     st.subheader("📚 All Books")
 
-    # Optional: customize column headers
-    renamed = kindle_sum.rename(columns={
+    sort_option = st.selectbox(
+        "Sort books by:",
+        options=["Title", "Author", "Year Read"],
+        index=0
+    )
+
+    kindle_sum.sort_values(by=sort_option, inplace=True)
+    kindle_sum = kindle_sum.reset_index(drop=True)
+
+    # --- Year filter only ---
+    years = sorted(kindle_sum['Year Read'].dropna().unique())
+    selected_year = st.selectbox("Filter by Year Read", ["All"] + years)
+
+    filtered_df = kindle_sum.copy()
+    if selected_year != "All":
+        filtered_df = filtered_df[filtered_df['Year Read'] == selected_year]
+
+    # --- Book Count ---
+    st.markdown(f"**Total Books Displayed: {len(filtered_df)}**")
+
+    # --- Display Table ---
+    display_df = filtered_df.rename(columns={
         "Title": "📘 Title", 
         "Author": "Author", 
         "Year Read": "Year Read"
     })
+    st.dataframe(display_df, use_container_width=True)
 
-    # Show as scrollable, filterable DataFrame
-    st.dataframe(renamed, use_container_width=True)
-    
-    # Header row
-   #print(f"{'📘 Title':<42} | {'Author':<22} | Year Read")
-   #print("-" * 80)
-   #
-   #for _, row in kindle_sum.iterrows():
-   #    title = row['Title']
-   #    author = row['Author']
-   #    year = row['Year Read']
-   #    print(f"📘 {title[:40]:<40}  | {author[:20]:<20}  | {year}")
+    # --- Download Button ---
+    csv_buffer = io.StringIO()
+    filtered_df.to_csv(csv_buffer, index=False)
+    st.download_button(
+        label="📥 Download CSV",
+        data=csv_buffer.getvalue(),
+        file_name="kindle_books_filtered.csv",
+        mime="text/csv"
+    )
+
+
 
  # Prompt user to export
    #export = input("\nWould you like to export this to summary.csv? (y/n): ").strip().lower()

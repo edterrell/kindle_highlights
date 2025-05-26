@@ -224,38 +224,15 @@ def process_kindle_sum(kindle_sum):
     # --- Sort selection ---
     st.subheader("📚 All Books")
 
-    sort_option = st.selectbox(
-        "Sort books by:",
-        options=["Title", "Author", "Year Read"],
-        index=0
-    )
-
-    kindle_sum.sort_values(by=sort_option, inplace=True)
+    
     kindle_sum = kindle_sum.reset_index(drop=True)
-
-    # --- Year filter only ---
-    years = sorted(kindle_sum['Year Read'].dropna().unique())
-    selected_year = st.selectbox("Filter by Year Read", ["All"] + years)
-
     filtered_df = kindle_sum.copy()
-    if selected_year != "All":
-        filtered_df = filtered_df[filtered_df['Year Read'] == selected_year]
-
-    # 🔍 Debugging output to help you troubleshoot
-    st.write("Selected year:", selected_year)
-    st.write("Available years:", years)
-    st.write("Filtered rows:", len(filtered_df))
-
+    
     # --- Book Count ---
     st.markdown(f"**Total Books Displayed: {len(filtered_df)}**")
 
     # --- Display Table ---
-    display_df = filtered_df.rename(columns={
-        "Title": "📘 Title", 
-        "Author": "Author", 
-        "Year Read": "Year Read"
-    })
-    st.dataframe(display_df, use_container_width=True)
+    st.dataframe(filtered_df, use_container_width=True)
 
     # --- Download Button ---
     csv_buffer = io.StringIO()
@@ -266,18 +243,6 @@ def process_kindle_sum(kindle_sum):
         file_name="kindle_books_filtered.csv",
         mime="text/csv"
     )
-
-
-
- # Prompt user to export
-   #export = input("\nWould you like to export this to summary.csv? (y/n): ").strip().lower()
-   #if export == 'y':
-   #    kindle_sum_export = kindle_sum.copy()
-   #    kindle_sum_export['Title'] = kindle_sum_export['Title'].str.slice(0, 40)
-   #    kindle_sum_export.to_csv('summary.csv', index=False)
-   #    print(f"\n✅ File saved as: summary.csv")
-
-
 
 # Begin execution
 def main():
@@ -293,9 +258,6 @@ def main():
         with tempfile.NamedTemporaryFile(delete=False, suffix=".txt") as tmp_file:
             tmp_file.write(uploaded_file.read())
             tmp_path = tmp_file.name
-    
-        #st.success("File uploaded successfully!")
-        #st.write(f"Temporary file path: `{tmp_path}`")
     
         # Optional: read first few lines for debugging
         with open(tmp_path, encoding="utf-8") as f:
@@ -332,11 +294,6 @@ def main():
         st.session_state.title = title
         st.session_state.cleaned_highlight = cleaned_highlight
 
-            # Remove the print statement below before release
-            #print(title)
-            #print()
-            #print(textwrap.fill(cleaned_highlight, width=40))
-
 
         # Store in session state
         st.session_state.df = df
@@ -344,10 +301,6 @@ def main():
         st.session_state.kindle_sum = kindle_sum
         st.success("Highlights loaded successfully!")
 
-        #st.subheader(title)
-        #st.write("")  # for spacing
-        #st.code(textwrap.fill(cleaned_highlight, width=60), language='text')
-        #st.write(cleaned_highlight)
 
 if __name__ == "__main__":
     main()

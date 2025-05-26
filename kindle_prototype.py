@@ -177,25 +177,26 @@ def show_highlights_for_title(df):
         print(f"\n✅ Highlights exported to: {filename}")
 
 # helper function for small screens
-def wrapped(label, text, width=40):
-    print(f"{label}:\n{textwrap.fill(text, width)}\n")
+def wrapped_streamlit(label, text, width=70):
+    wrapped_text = textwrap.fill(text, width=width)
+    st.markdown(f"**{label}:**")
+    st.code(wrapped_text)
 
 # show surrounding context for a highlight
 def context(df, random_index):
     try:
-        # Now safely get context
         result = get_context(df, random_index)
-    
-        print(f"\n--- Context ---")
-        print(f"Title:\n{result['title']}\n")
-
-        wrapped("Above highlight", result['above'])
-        wrapped("Current highlight", result['current'])
-        wrapped("Below highlight", result['below'])
         
-    
+        st.subheader("Context View")
+        st.markdown(f"**Title:** {result['title']}")
+
+        wrapped_streamlit("Above highlight", result['above'])
+        wrapped_streamlit("Current highlight", result['current'])
+        wrapped_streamlit("Below highlight", result['below'])
+
     except ValueError as e:
-        print("Error:", e)
+        st.error(f"Error: {e}")
+
 
 def setup_summary(df):
     # Kindle Summary of all titles and authors

@@ -224,26 +224,36 @@ def process_kindle_sum(kindle_sum):
     
     #kindle_sum.sort_values('Author')
     
-    print (len(kindle_sum))
-    print("\n--- All Books ---\n")
+    #print (len(kindle_sum))
+    st.subheader("📚 All Books")
+
+    # Optional: customize column headers
+    renamed = kindle_sum.rename(columns={
+        "Title": "📘 Title", 
+        "Author": "Author", 
+        "Year Read": "Year Read"
+    })
+
+    # Show as scrollable, filterable DataFrame
+    st.dataframe(renamed, use_container_width=True)
     
     # Header row
-    print(f"{'📘 Title':<42} | {'Author':<22} | Year Read")
-    print("-" * 80)
-    
-    for _, row in kindle_sum.iterrows():
-        title = row['Title']
-        author = row['Author']
-        year = row['Year Read']
-        print(f"📘 {title[:40]:<40}  | {author[:20]:<20}  | {year}")
+   #print(f"{'📘 Title':<42} | {'Author':<22} | Year Read")
+   #print("-" * 80)
+   #
+   #for _, row in kindle_sum.iterrows():
+   #    title = row['Title']
+   #    author = row['Author']
+   #    year = row['Year Read']
+   #    print(f"📘 {title[:40]:<40}  | {author[:20]:<20}  | {year}")
 
  # Prompt user to export
-    export = input("\nWould you like to export this to summary.csv? (y/n): ").strip().lower()
-    if export == 'y':
-        kindle_sum_export = kindle_sum.copy()
-        kindle_sum_export['Title'] = kindle_sum_export['Title'].str.slice(0, 40)
-        kindle_sum_export.to_csv('summary.csv', index=False)
-        print(f"\n✅ File saved as: summary.csv")
+   #export = input("\nWould you like to export this to summary.csv? (y/n): ").strip().lower()
+   #if export == 'y':
+   #    kindle_sum_export = kindle_sum.copy()
+   #    kindle_sum_export['Title'] = kindle_sum_export['Title'].str.slice(0, 40)
+   #    kindle_sum_export.to_csv('summary.csv', index=False)
+   #    print(f"\n✅ File saved as: summary.csv")
 
 
 

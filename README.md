@@ -6,9 +6,11 @@ This script creates a random highlight from your Kindle's "My Clippings.txt" fil
 ## Setup
 
 1. Make sure you have Python 3.8+ installed.
-2. Install dependencies: pip install -r requirements.txt. The dependencies are pandas and numpy
-3. Run the script: python kindle.py
-4. Copy the 'My Clippings.txt' to your desktop. (See Note below). 
+2. If you wish to create a new environment use: conda env create -f environment.yml
+2. Install dependencies: pip install -r requirements.txt. Dependencies are pandas,numpy and streamlit
+3. Run the script: streamlit run kindle_prototype.py
+4. Copy the 'My Clippings.txt' to your desktop. (See Note below). The program prompts the user
+   to drag and drop this file. 
 
 ## Features
 

@@ -334,15 +334,15 @@ if __name__ == "__main__":
             "What would you like to do next?",
             ("Get context", "Show highlights for a specific title", "Show all titles")
         )
+        if st.button("Run selected action"):
+            if action == "Get context":
+                context(df, random_index)
+            elif action == "Show highlights for a specific title":
+                show_highlights_for_title(df)
+            elif action == "Show all titles":
+                process_kindle_sum(kindle_sum)
 
-        if action == "Get context":
-            context(df, random_index)
 
-        elif action == "Show highlights for a specific title":
-            show_highlights_for_title(df)
-
-        elif action == "Show all titles":
-            process_kindle_sum(kindle_sum)
 
         #st.markdown("---")
         #if st.button("Exit App"):

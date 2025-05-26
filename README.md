@@ -12,8 +12,8 @@ This script creates a random highlight from your Kindle's "My Clippings.txt" fil
    conda env create -f environment.yml
    conda activate streamlit
    
-3. **(Option B)** Install dependencies (if not using environment.yml)
-   Required packages: pandas, numpy, and streamlit
+3. **(Option B) Install dependencies (if not using environment.yml)**
+   Required packages: pandas, numpy, streamlit and watchdog
 
    pip install -r requirements.txt
 

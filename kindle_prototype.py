@@ -241,6 +241,11 @@ def process_kindle_sum(kindle_sum):
     if selected_year != "All":
         filtered_df = filtered_df[filtered_df['Year Read'] == selected_year]
 
+    # 🔍 Debugging output to help you troubleshoot
+    st.write("Selected year:", selected_year)
+    st.write("Available years:", years)
+    st.write("Filtered rows:", len(filtered_df))
+
     # --- Book Count ---
     st.markdown(f"**Total Books Displayed: {len(filtered_df)}**")
 

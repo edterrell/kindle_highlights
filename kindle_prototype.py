@@ -292,9 +292,12 @@ def main():
             st.error(f"Error: {e}")
             return
 
-            #title = row['title']
-            #text = row['highlight']
-            #cleaned_highlight = re.sub(r"\.\s*\d+", ".", text)
+        title = row['title']
+        text = row['highlight']
+        cleaned_highlight = re.sub(r"\.\s*\d+", ".", text)
+        # Store in session state
+        st.session_state.title = title
+        st.session_state.cleaned_highlight = cleaned_highlight
 
             # Remove the print statement below before release
             #print(title)
@@ -302,17 +305,17 @@ def main():
             #print(textwrap.fill(cleaned_highlight, width=40))
 
 
-            # Store in session state
-            st.session_state.df = df
-            st.session_state.random_index = random_index
-            st.session_state.kindle_sum = kindle_sum
-            st.success("Highlights loaded successfully!")
+        # Store in session state
+        st.session_state.df = df
+        st.session_state.random_index = random_index
+        st.session_state.kindle_sum = kindle_sum
+        st.success("Highlights loaded successfully!")
 
-            #st.subheader(title)
-            #st.write("")  # for spacing
-            #st.code(textwrap.fill(cleaned_highlight, width=60), language='text')
-            #st.write(cleaned_highlight)
-  
+        #st.subheader(title)
+        #st.write("")  # for spacing
+        #st.code(textwrap.fill(cleaned_highlight, width=60), language='text')
+        #st.write(cleaned_highlight)
+
 if __name__ == "__main__":
     main()
 
@@ -320,6 +323,12 @@ if __name__ == "__main__":
         df = st.session_state.df
         random_index = st.session_state.random_index
         kindle_sum = st.session_state.kindle_sum
+
+    if 'title' in st.session_state and 'cleaned_highlight' in st.session_state:
+        st.subheader("Random Highlight")
+        st.markdown(f"**{st.session_state.title}**")
+        st.code(textwrap.fill(st.session_state.cleaned_highlight, width=80))
+
 
         action = st.radio(
             "What would you like to do next?",

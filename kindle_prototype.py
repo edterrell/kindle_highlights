@@ -304,7 +304,8 @@ def main():
 
             st.subheader(title)
             st.write("")  # for spacing
-            st.code(textwrap.fill(cleaned_highlight, width=60), language='text')
+            #st.code(textwrap.fill(cleaned_highlight, width=60), language='text')
+            st.write(cleaned_highlight)
   
             # modify width depending on desired layout
             #print(cleaned_highlight)
@@ -320,33 +321,28 @@ def main():
         return None, None, None
     
 
-DEBUG = True
-
 if __name__ == "__main__":
     main()
 
-    if not DEBUG:
-        while True:
-            choice = input("\n"
-                           "What would you like to do next?\n"
-                           "1. Get context\n"
-                           "2. Show all highlights for a specific title?\n"
-                           "3. Show all titles\n"
-                           "4. Exit\n"
-                           "\n"
-                           "Enter choice (1-4): ")
-            if choice == "1":
-                context(df, random_index)
-            elif choice == "2":
-                # Show all highlights for a specific title
-                show_highlights_for_title(df)
-            elif choice == "3":
-                # Show all titles
-                process_kindle_sum(kindle_sum)
-            elif choice == "4":
-                print("Goodbye!")
-                break
-            else:
-                print("Invalid choice. Try again.")
+    if df is not None:
+        st.subheader("Choose an action:")
+
+        action = st.radio(
+            "What would you like to do next?",
+            ("Get context", "Show highlights for a specific title", "Show all titles")
+        )
+
+        if action == "Get context":
+            context(df, random_index)
+
+        elif action == "Show highlights for a specific title":
+            show_highlights_for_title(df)
+
+        elif action == "Show all titles":
+            process_kindle_sum(kindle_sum)
+
+        st.markdown("---")
+        if st.button("Exit App"):
+            st.success("Goodbye!")  # symbolic; can't really "exit" in Streamlit
     
 

@@ -124,75 +124,49 @@ def get_random_highlight_excluding(df, exclude_keywords):
 
 
 # show all highlights for a specific title
-def show_highlights_for_title(df):
-    st.subheader("All Highlights for a Specific Title")
+def show_highlights_for_title():
+    df = st.session_state.get("df")
+    if df is None:
+        st.warning("No data loaded.")
+        return
 
     unique_titles = df['title'].dropna().unique()
     unique_titles.sort()
 
-    selected_title = st.selectbox("Select a book title:", unique_titles, index=None)
+    selected_title = st.selectbox(
+        "Select a book title:",
+        options=unique_titles,
+        index=None,
+        key="title_select"
+    )
 
     if selected_title:
-        if st.button("Show Highlights"):
-            filtered = df[df['title'] == selected_title]
+        st.subheader(f"Highlights for: _{selected_title}_")
+        filtered = df[df['title'] == selected_title]
 
-            st.markdown(f"**{len(filtered)} highlights found for:** _{selected_title}_")
-            for i, row in filtered.iterrows():
-                highlight = row['highlight']
-                cleaned = re.sub(r"\.\s*\d+", ".", highlight)
-                st.markdown(f"• {cleaned}")
+        if filtered.empty:
+            st.info("No highlights found for this title.")
+            return
 
+        for _, row in filtered.iterrows():
+            highlight = row['highlight']
+            cleaned = re.sub(r"\.\s*\d+", ".", highlight)
+            st.markdown(f"• {cleaned}")
 
-  #keyword = input("Enter the title or author name. Return generates a list: ").strip().lower()
-
-  ## Create a cleaned version of the title column
-  #df = df.copy()
-  #df['clean_title'] = df['title'].fillna('').apply(lambda t: t.replace('\ufeff', '').strip().lower())
-
-  ## Find titles that contain the keyword
-  #matched_rows = df[df['clean_title'].str.contains(keyword)]
-  #matched_titles = matched_rows['title'].unique()
-
-  #if len(matched_titles) == 0:
-  #    print(f"No titles found containing '{keyword}'.")
-  #    return
-
-  #if len(matched_titles) == 1:
-  #    selected_title = matched_titles[0]
-  #    print(f"\nShowing highlights for: {selected_title}\n")
-  #else:
-  #    print("\nMultiple titles found:")
-  #    for i, title in enumerate(matched_titles):
-  #        print(f"{i}: {title}")
-  #    
-  #    try:
-  #        selection = int(input("\nEnter the number of the title you want: "))
-  #        selected_title = matched_titles[selection]
-  #    except (ValueError, IndexError):
-  #        print("Invalid selection.")
-  #        return
-
-    # Show highlights using original title
-    #print()
-    #print(selected_title)
-    #matches = df[df['title'] == selected_title]
-    #for i, row in matches.iterrows():
-    #    wrapped(f"[{i}]", row['highlight'])
-    #    print('-' * 40)
 
     # Prompt user to export
-    export = input(f"\nExport highlights as csv? (y/n): ").strip().lower()
-    if export == 'y':
-        # Sanitize title: remove special characters, replace spaces with underscores, limit to 40 chars
-        safe_title = re.sub(r'[\\/*?:"<>|(),]', "", selected_title)   # Remove invalid characters
-        safe_title = safe_title.replace(" ", "_")[:40]             # Replace spaces and limit length
-        filename = f"{safe_title}.txt"
-    
-        with open(filename, "w", encoding="utf-8") as f:
-            for i, row in matches.iterrows():
-                f.write(f"[{i}] {row['highlight']}\n{'-'*40}\n")
-
-        print(f"\n✅ Highlights exported to: {filename}")
+    #export = input(f"\nExport highlights as csv? (y/n): ").strip().lower()
+    #if export == 'y':
+    #    # Sanitize title: remove special characters, replace spaces with underscores, limit to 40 chars
+    #    safe_title = re.sub(r'[\\/*?:"<>|(),]', "", selected_title)   # Remove invalid characters
+    #    safe_title = safe_title.replace(" ", "_")[:40]             # Replace spaces and limit length
+    #    filename = f"{safe_title}.txt"
+    #
+    #    with open(filename, "w", encoding="utf-8") as f:
+    #        for i, row in matches.iterrows():
+    #            f.write(f"[{i}] {row['highlight']}\n{'-'*40}\n")
+#
+    #    print(f"\n✅ Highlights exported to: {filename}")
 
 # helper function for small screens
 def wrapped_streamlit(label, text, width=70):
@@ -338,18 +312,16 @@ if __name__ == "__main__":
             "What would you like to do next?",
             ("Get context", "Show highlights for a specific title", "Show all titles")
         )
-        if st.button("Run selected action"):
-            if action == "Get context":
+        # Always run this — Streamlit needs to render the UI every time
+        if action == "Get context":
+            if st.button("Run 'Get context'"):
                 context(df, random_index)
-            elif action == "Show highlights for a specific title":
-                show_highlights_for_title(df)
-            elif action == "Show all titles":
+
+        elif action == "Show highlights for a specific title":
+            show_highlights_for_title()  # This function should render UI directly with selectbox
+
+        elif action == "Show all titles":
+            if st.button("Run 'Show all titles'"):
                 process_kindle_sum(kindle_sum)
 
-
-
-        #st.markdown("---")
-        #if st.button("Exit App"):
-        #    st.success("Goodbye!")  # symbolic; can't really "exit" in Streamlit
-    
 

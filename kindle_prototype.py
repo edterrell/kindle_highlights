@@ -253,17 +253,16 @@ def main():
     uploaded_file = st.file_uploader(
         "Upload your 'My Clippings.txt' file", 
         type=["txt"],
-        key="file_upload_main")
+        key="file_upload_main"
+    )
 
-
-    if uploaded_file is not None:
+    if uploaded_file is not None and 'df' not in st.session_state:
         with tempfile.NamedTemporaryFile(delete=False, suffix=".txt") as tmp_file:
             tmp_file.write(uploaded_file.read())
             tmp_path = tmp_file.name
-        #df = parse_kindle_highlights(tmp_path)
     
-        st.success("File uploaded successfully!")
-        st.write(f"Temporary file path: `{tmp_path}`")
+        #st.success("File uploaded successfully!")
+        #st.write(f"Temporary file path: `{tmp_path}`")
     
         # Optional: read first few lines for debugging
         with open(tmp_path, encoding="utf-8") as f:
@@ -277,13 +276,9 @@ def main():
         df.sort_values('added_on',inplace=True)
         kindle_sum = setup_summary(df)
 
-        # Drop clip limit messages
+        # Drop clip limit messages and duplicates with same location values
         clip_message = "You have reached the clipping limit for this item"
-
-        # Remove rows where highlight contains this string
         df = df[~df['highlight'].str.contains(clip_message, na=False)]
-
-        # drop duplicates that have the same location values
         df = df.drop_duplicates(subset=['title', 'location'])
 
         # Get random title - highlight (excludes keywords)
@@ -293,39 +288,38 @@ def main():
         
         try:
             row, random_index = get_random_highlight_excluding(df, exclude_keywords)
-            title = row['title']
-            text = row['highlight']
-            cleaned_highlight = re.sub(r"\.\s*\d+", ".", text)
+        except ValueError as e:
+            st.error(f"Error: {e}")
+            return
+
+            #title = row['title']
+            #text = row['highlight']
+            #cleaned_highlight = re.sub(r"\.\s*\d+", ".", text)
 
             # Remove the print statement below before release
-            print(title)
-            print()
-            print(textwrap.fill(cleaned_highlight, width=40))
+            #print(title)
+            #print()
+            #print(textwrap.fill(cleaned_highlight, width=40))
 
-            st.subheader(title)
-            st.write("")  # for spacing
+
+            # Store in session state
+            st.session_state.df = df
+            st.session_state.random_index = random_index
+            st.session_state.kindle_sum = kindle_sum
+            st.success("Highlights loaded successfully!")
+
+            #st.subheader(title)
+            #st.write("")  # for spacing
             #st.code(textwrap.fill(cleaned_highlight, width=60), language='text')
-            st.write(cleaned_highlight)
+            #st.write(cleaned_highlight)
   
-            # modify width depending on desired layout
-            #print(cleaned_highlight)
-            print()
-
-        except ValueError as e:
-            print("Error:", e)
-
-        return df, random_index, kindle_sum
-
-    else:
-        st.info("Please upload your 'My Clippings.txt' file to get started.")
-        return None, None, None
-    
-
 if __name__ == "__main__":
     main()
 
-    if df is not None:
-        st.subheader("Choose an action:")
+    if 'df' in st.session_state:
+        df = st.session_state.df
+        random_index = st.session_state.random_index
+        kindle_sum = st.session_state.kindle_sum
 
         action = st.radio(
             "What would you like to do next?",
@@ -341,8 +335,8 @@ if __name__ == "__main__":
         elif action == "Show all titles":
             process_kindle_sum(kindle_sum)
 
-        st.markdown("---")
-        if st.button("Exit App"):
-            st.success("Goodbye!")  # symbolic; can't really "exit" in Streamlit
+        #st.markdown("---")
+        #if st.button("Exit App"):
+        #    st.success("Goodbye!")  # symbolic; can't really "exit" in Streamlit
     
 

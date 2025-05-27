@@ -271,6 +271,7 @@ def main():
         # Get random title - highlight (excludes keywords)
         # Modify this list to add or change titles to be excluded 
         exclude_keywords = ["Reggie", "Bicycling"]
+        st.session_state.exclude_keywords = exclude_keywords
 
         
         try:
@@ -303,19 +304,39 @@ if __name__ == "__main__":
         kindle_sum = st.session_state.kindle_sum
 
     if 'title' in st.session_state and 'cleaned_highlight' in st.session_state:
-        st.subheader("Random Highlight")
+        st.markdown("Random Highlight")
         st.markdown(f"**{st.session_state.title}**")
         st.code(textwrap.fill(st.session_state.cleaned_highlight, width=80))
 
 
         action = st.radio(
             "What would you like to do next?",
-            ("Get context", "Show highlights for a specific title", "Show all titles")
+            ("New Highlight", "Get context", "Show highlights for a specific title", "Show all titles")
         )
         # Always run this — Streamlit needs to render the UI every time
         if action == "Get context":
             if st.button("Run 'Get context'"):
                 context(df, random_index)
+
+        elif action == "New Highlight":
+            if st.button("Run 'New Highlight'"):
+                try:
+                    exclude_keywords = st.session_state.exclude_keywords
+                    row, random_index = get_random_highlight_excluding(df, exclude_keywords)
+                    cleaned = re.sub(r"\.\s*\d+", ".", row['highlight'])
+    
+                    # Save to session state for reuse
+                    st.session_state.random_index = random_index
+                    st.session_state.title = row['title']
+                    st.session_state.cleaned_highlight = cleaned
+    
+                    # Display the new highlight
+                    st.markdown("Random Highlight")
+                    st.markdown(f"**{row['title']}**")
+                    st.code(textwrap.fill(cleaned, width=80))
+    
+                except ValueError as e:
+                    st.error(f"No suitable highlight found: {e}")
 
         elif action == "Show highlights for a specific title":
             show_highlights_for_title()  # This function should render UI directly with selectbox

@@ -2,8 +2,6 @@
 # coding: utf-8
 
 
-#import csv
-#import numpy as np
 import pandas as pd
 import re
 from pathlib import Path
@@ -141,7 +139,7 @@ def show_highlights_for_title():
     )
 
     if selected_title:
-        st.subheader(f"Highlights for: _{selected_title}_")
+        st.markdown(f"**{selected_title}**")
         highlights_text = f"Highlights from: {selected_title}\n\n"
         filtered = df[df['title'] == selected_title]
 
@@ -152,8 +150,12 @@ def show_highlights_for_title():
         for _, row in filtered.iterrows():
             highlight = row['highlight']
             cleaned = re.sub(r"\.\s*\d+", ".", highlight)
-            st.markdown(f"• {cleaned}")
-            highlights_text += f"• {cleaned.strip()}\n\n"
+            highlights_text += f"{cleaned.strip()}\n---\n"
+            wrapped = textwrap.fill(cleaned.strip(), width=50)
+            st.text(wrapped)
+            st.markdown("---")
+            
+
     
         # Safe filename from title
         safe_title = re.sub(r'[\\/*?:"<>|]', "", selected_title)
@@ -166,27 +168,15 @@ def show_highlights_for_title():
             mime="text/plain"
         )   
 
-
-
-    # Prompt user to export
-    #export = input(f"\nExport highlights as csv? (y/n): ").strip().lower()
-    #if export == 'y':
-    #    # Sanitize title: remove special characters, replace spaces with underscores, limit to 40 chars
-    #    safe_title = re.sub(r'[\\/*?:"<>|(),]', "", selected_title)   # Remove invalid characters
-    #    safe_title = safe_title.replace(" ", "_")[:40]             # Replace spaces and limit length
-    #    filename = f"{safe_title}.txt"
-    #
-    #    with open(filename, "w", encoding="utf-8") as f:
-    #        for i, row in matches.iterrows():
-    #            f.write(f"[{i}] {row['highlight']}\n{'-'*40}\n")
-#
-    #    print(f"\n✅ Highlights exported to: {filename}")
-
 # helper function for small screens
-def wrapped_streamlit(label, text, width=70):
-    wrapped_text = textwrap.fill(text, width=width)
-    st.markdown(f"**{label}:**")
-    st.code(wrapped_text)
+# this is currently only being used in the get_context fuction
+def wrapped_streamlit(label, text, width=50):
+    if text:
+        wrapped_text = textwrap.fill(text, width=width)
+        st.markdown(f"**{label}:**")
+        st.code(wrapped_text)
+    else:
+         st.markdown(f"**{label}:** _No highlight available._")
 
 # show surrounding context for a highlight
 def context(df, random_index):
@@ -194,7 +184,7 @@ def context(df, random_index):
         result = get_context(df, random_index)
         
         st.markdown("Context View")
-        st.subheader(f"{result['title']}")
+        st.markdown(f"**{result['title']}**")
 
         wrapped_streamlit("Above highlight", result['above'])
         wrapped_streamlit("Current highlight", result['current'])
@@ -232,6 +222,7 @@ def process_kindle_sum(kindle_sum):
 
     
     kindle_sum = kindle_sum.reset_index(drop=True)
+    kindle_sum.sort_values('Title',inplace=True)
     filtered_df = kindle_sum.copy()
     
     # --- Book Count ---
@@ -241,7 +232,7 @@ def process_kindle_sum(kindle_sum):
     st.dataframe(filtered_df, use_container_width=True)
 
     # --- Download Button ---
-    csv_buffer = io.StringIO()
+    csv_buffer = StringIO()
     filtered_df.to_csv(csv_buffer, index=False)
     st.download_button(
         label="📥 Download CSV",
@@ -284,7 +275,7 @@ def main():
 
         # Get random title - highlight (excludes keywords)
         # Modify this list to add or change titles to be excluded 
-        exclude_keywords = ["Reggie", "Bicycling"]
+        exclude_keywords = ["Reggie", "Bicycling", "Python"]
         st.session_state.exclude_keywords = exclude_keywords
 
         
@@ -320,7 +311,7 @@ if __name__ == "__main__":
     if 'title' in st.session_state and 'cleaned_highlight' in st.session_state:
         st.markdown("Random Highlight")
         st.markdown(f"**{st.session_state.title}**")
-        st.code(textwrap.fill(st.session_state.cleaned_highlight, width=80))
+        st.code(textwrap.fill(st.session_state.cleaned_highlight, width=50))
 
 
         action = st.radio(
@@ -347,7 +338,7 @@ if __name__ == "__main__":
                     # Display the new highlight
                     st.markdown("Random Highlight:")
                     st.markdown(f"**{row['title']}**")
-                    st.code(textwrap.fill(cleaned, width=80))
+                    st.code(textwrap.fill(cleaned, width=50))
     
                 except ValueError as e:
                     st.error(f"No suitable highlight found: {e}")

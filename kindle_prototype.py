@@ -142,16 +142,30 @@ def show_highlights_for_title():
 
     if selected_title:
         st.subheader(f"Highlights for: _{selected_title}_")
+        highlights_text = f"Highlights from: {selected_title}\n\n"
         filtered = df[df['title'] == selected_title]
 
         if filtered.empty:
             st.info("No highlights found for this title.")
             return
-
+    
         for _, row in filtered.iterrows():
             highlight = row['highlight']
             cleaned = re.sub(r"\.\s*\d+", ".", highlight)
             st.markdown(f"• {cleaned}")
+            highlights_text += f"• {cleaned.strip()}\n\n"
+    
+        # Safe filename from title
+        safe_title = re.sub(r'[\\/*?:"<>|]', "", selected_title)
+        file_name = f"{safe_title}_highlights.txt"
+
+        st.download_button(
+            label="📥 Download highlights as TXT",
+            data=highlights_text,
+            file_name=file_name,
+            mime="text/plain"
+        )   
+
 
 
     # Prompt user to export
@@ -179,8 +193,8 @@ def context(df, random_index):
     try:
         result = get_context(df, random_index)
         
-        st.subheader("Context View")
-        st.markdown(f"**Title:** {result['title']}")
+        st.markdown("Context View")
+        st.subheader(f"{result['title']}")
 
         wrapped_streamlit("Above highlight", result['above'])
         wrapped_streamlit("Current highlight", result['current'])
@@ -331,7 +345,7 @@ if __name__ == "__main__":
                     st.session_state.cleaned_highlight = cleaned
     
                     # Display the new highlight
-                    st.markdown("Random Highlight")
+                    st.markdown("Random Highlight:")
                     st.markdown(f"**{row['title']}**")
                     st.code(textwrap.fill(cleaned, width=80))
     

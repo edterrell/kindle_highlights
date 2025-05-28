@@ -255,12 +255,6 @@ def main():
         with tempfile.NamedTemporaryFile(delete=False, suffix=".txt") as tmp_file:
             tmp_file.write(uploaded_file.read())
             tmp_path = tmp_file.name
-    
-        # Optional: read first few lines for debugging
-        with open(tmp_path, encoding="utf-8") as f:
-            sample = ''.join([next(f) for _ in range(10)])
-        st.text("Sample of uploaded file:")
-        st.code(sample)
         
         df = parse_kindle_highlights(tmp_path)
         #st.dataframe(df)

@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
+# Usage: 
+# Comments: see README.md
 
 
 import pandas as pd
@@ -102,7 +104,7 @@ def get_context(df, index):
         'below': below
     }
 
-# Exclusion list
+# Get Random highlight excluding
 def get_random_highlight_excluding(df, exclude_keywords):
     # Create a mask to exclude titles containing any of the keywords (case-insensitive)
     # ~ inverts the boolean series (everything except the keywords)
@@ -114,7 +116,7 @@ def get_random_highlight_excluding(df, exclude_keywords):
         raise ValueError("No titles remaining after exclusions.")
     
     # df.sample is a function that returns 1 row from the df
-    # row selection uses default_rng for consistent randomness but can be replaced (e.g. 42 for testing)
+    # row selection uses default_rng for consistent randomness but can be replaced (e.g. random_state=42 for testing)
     random_row = filtered_df.sample(n=1, random_state=rng.integers(1_000_000))
     
     # Return the row itself and its original index in the full DataFrame
@@ -257,7 +259,6 @@ def main():
             tmp_path = tmp_file.name
         
         df = parse_kindle_highlights(tmp_path)
-        #st.dataframe(df)
 
         df.sort_values('added_on',inplace=True)
         kindle_sum = setup_summary(df)
@@ -282,12 +283,10 @@ def main():
         title = row['title']
         text = row['highlight']
         cleaned_highlight = re.sub(r"\.\s*\d+", ".", text)
+       
         # Store in session state
         st.session_state.title = title
         st.session_state.cleaned_highlight = cleaned_highlight
-
-
-        # Store in session state
         st.session_state.df = df
         st.session_state.random_index = random_index
         st.session_state.kindle_sum = kindle_sum

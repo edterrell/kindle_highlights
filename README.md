@@ -1,40 +1,29 @@
-# Kindle Highlights CLI Tool
+# 📚 Kindle Highlights Viewer
 
-This script creates a random highlight from your Kindle's "My Clippings.txt" file.
+A simple, elegant tool to explore your Kindle highlights — either through a web app or on your local machine.
 
+---
 
-## Setup
+## 🌐 Use the App Online (No Setup Needed)
 
-1. **Make sure you have Python 3.8+ installed.**
+The easiest way to use this tool is through the live Streamlit web app:
 
-2. **(Option A) Create a new environment using conda:**
+👉 **[Launch the App](https://your-streamlit-app-url.streamlit.app/)**
 
-   conda env create -f environment.yml
-   conda activate streamlit
-   
-3. **(Option B) Install dependencies (if not using environment.yml)**
-   Required packages: pandas, numpy, streamlit and watchdog
+### How it works:
+1. Export your Kindle highlights (`My Clippings.txt`) from your device.
+2. Upload the file into the app.
+3. Browse random quotes, search by title, or view all your books!
 
-   pip install -r requirements.txt
+---
 
-5. Run the app:
-   streamlit run kindle_prototype.py
-   
-6. Prepare your Kindle highlights:
-Copy the My Clippings.txt file from your Kindle to your desktop.
-When prompted, drag and drop this file into the app.
+## 🖥️ Run Locally (For Developers or Offline Use)
 
+### Requirements
+- Python 3.8+
+- `pandas`, `numpy`, `streamlit`, `watchdog`
 
-
-## Features
-
-- View a random highlight and its context.
-- View all highlights from a selected book
-- View all book titles you've read. The "show all titles' provides a list of title, author, and year read (year of the first highlight)
-
-- (Optional) Filter out keywords to exclude certain titles from the random highlight.
-
-## Note
-
-Your Kindle highlights file is usually named `My Clippings.txt` and can be found in the
-Kindle device's Documents folder when connected via USB.
+### Option A: Conda Environment
+```bash
+conda env create -f environment.yml
+conda activate streamlit

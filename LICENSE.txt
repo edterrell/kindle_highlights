@@ -1,0 +1,5 @@
+Copyright © 2025 Ed Terrell. All rights reserved.
+
+This software and its associated files are the intellectual property of the author.  
+No part of this codebase may be reproduced, distributed, or transmitted in any form or by any means,  
+including copying, modifying, or reusing the code, without the prior written permission of the copyright holder.

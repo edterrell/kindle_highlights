@@ -13,15 +13,15 @@ The easiest way to use this tool is through the live Streamlit web app:
 ### How it works:
 1. Export your Kindle highlights (`My Clippings.txt`) from your device.
 2. Upload the file into the app.
-3. Browse random quotes, search by title, or view all your books!
+3. Browse random quotes, search by title/author, or view all your books!
 
 ---
 
 ## 🔍 Features
 
-#### 	🎲 Random highlight browser with full context
+#### 	🎲 Random highlight browser with local context
 #### 	📖 View all highlights from a selected book
-#### 	📚 See a full list of books (with title, author, and year read)
+#### 	📚 See a full list of your books (with title, author, and year read)
 
 ---
 

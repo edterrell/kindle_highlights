@@ -8,7 +8,7 @@ A simple, elegant tool to explore your Kindle highlights — either through a we
 
 The easiest way to use this tool is through the live Streamlit web app:
 
-👉 **[Launch the App](https://your-streamlit-app-url.streamlit.app/)**
+👉 **[Launch the App](https://kindle.streamlit.app)**
 
 ### How it works:
 1. Export your Kindle highlights (`My Clippings.txt`) from your device.
@@ -17,18 +17,19 @@ The easiest way to use this tool is through the live Streamlit web app:
 
 ---
 
-🔍 Features
+### 🔍 Features
 
-🎲 Random highlight browser with full context
-📖 View all highlights from a selected book
-📚 See a full list of books (with title, author, and year read)
-🔎 (Optional) Filter keywords to exclude certain books from random selection
+#### 🎲 Random highlight browser with full context
+#### 📖 View all highlights from a selected book
+#### 📚 See a full list of books (with title, author, and year read)
+#### 🔎 (Optional) Filter keywords to exclude certain books from random selection
 
 ### Using Your Highlights
 Copy the My Clippings.txt file from your Kindle (usually in the Kindle Documents folder).
 When prompted by the app, upload the file.
 
 💬 Questions?
+Feel free to open an issue or reach out via GitHub.
 
 
 ## 🖥️ Run Locally (For Developers or Offline Use)

@@ -22,7 +22,8 @@ The easiest way to use this tool is through the live Streamlit web app:
 #### 	🎲 Random highlight browser with full context
 #### 	📖 View all highlights from a selected book
 #### 	📚 See a full list of books (with title, author, and year read)
-#### 	🔎 (Optional) Filter keywords to exclude certain books from random selection
+
+---
 
 ### Using Your Highlights
 Connect your Kindle to your computer via USB. Copy the My Clippings.txt file from your Kindle (usually in the Kindle Documents folder).
@@ -31,9 +32,8 @@ When prompted by the app, upload the file.
 ### 💬 Questions?
 Feel free to open an issue or reach out via GitHub.
 
-
+---
 ### 🖥️ Run Locally (For Developers or Offline Use)
-
 #### Requirements
 - Python 3.8+
 - `pandas`, `numpy`, `streamlit`, `watchdog`
@@ -43,7 +43,6 @@ Feel free to open an issue or reach out via GitHub.
 conda env create -f environment.yml
 conda activate streamlit
 `
-
 #### Option B: pip
 ``pip install -r requirements.txt``
 

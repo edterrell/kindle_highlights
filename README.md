@@ -26,8 +26,7 @@ The easiest way to use this tool is through the live Streamlit web app:
 ---
 
 ### Using Your Highlights
-Connect your Kindle to your computer via USB. Copy the My Clippings.txt file from your Kindle (usually in the Kindle Documents folder).
-When prompted by the app, upload the file.
+Connect your Kindle to your computer via USB. Copy the My Clippings.txt file from your Kindle (usually in it's "documents" folder). It may convenient to upload it to your desktop for easy retrieval later. When prompted by the app, upload the file.
 
 ### 💬 Questions?
 Feel free to open an issue or reach out via GitHub.

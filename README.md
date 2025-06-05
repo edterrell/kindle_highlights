@@ -25,7 +25,7 @@ The easiest way to use this tool is through the live Streamlit web app:
 #### 🔎 (Optional) Filter keywords to exclude certain books from random selection
 
 ### Using Your Highlights
-Copy the My Clippings.txt file from your Kindle (usually in the Kindle Documents folder).
+Connect your Kindle to your computer via USB. Copy the My Clippings.txt file from your Kindle (usually in the Kindle Documents folder).
 When prompted by the app, upload the file.
 
 💬 Questions?

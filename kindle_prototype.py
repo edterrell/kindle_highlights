@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
-# Usage: 
+# Usage: streamlit run kindle_prototype.py
 # Comments: see README.md
 
 
@@ -186,7 +186,7 @@ def context(df, random_index):
         result = get_context(df, random_index)
         
         st.markdown("Context View")
-        st.markdown(f"**{result['title']}**")
+        st.subheader(f"{result['title']}")
 
         wrapped_streamlit("Above highlight", result['above'])
         wrapped_streamlit("Current highlight", result['current'])
@@ -303,7 +303,7 @@ if __name__ == "__main__":
 
     if 'title' in st.session_state and 'cleaned_highlight' in st.session_state:
         st.markdown("Random Highlight")
-        st.markdown(f"**{st.session_state.title}**")
+        st.subheader(f"{st.session_state.title}")
         st.code(textwrap.fill(st.session_state.cleaned_highlight, width=50))
 
 
@@ -330,7 +330,7 @@ if __name__ == "__main__":
     
                     # Display the new highlight
                     st.markdown("Random Highlight:")
-                    st.markdown(f"**{row['title']}**")
+                    st.subheader(f"{row['title']}")
                     st.code(textwrap.fill(cleaned, width=50))
     
                 except ValueError as e:

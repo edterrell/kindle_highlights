@@ -309,7 +309,7 @@ if __name__ == "__main__":
 
         action = st.radio(
             "What would you like to do next?",
-            ("New Highlight", "Get context", "Show all highlights for a specific title", "Show all titles")
+            ("New Highlight", "Get context", "Show highlights for a specific title", "Show all titles")
         )
         # Always run this — Streamlit needs to render the UI every time
         if action == "Get context":

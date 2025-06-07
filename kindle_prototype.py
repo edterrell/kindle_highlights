@@ -311,44 +311,50 @@ if __name__ == "__main__":
             "What would you like to do next?",
             ("New Highlight", "Get context", "Show all highlights for a specific title", "Show all titles")
         )
-        with st.container():
-            st.markdown("""
-                <div style="background-color: #28a745; padding: 10px; border-radius: 10px; text-align: center;">
-                <p style="color: white; font-size: 18px; font-weight: bold;">Ready? Click below</p>
-                </div>
-            """, unsafe_allow_html=True)
+       
 
+        
+        # Always run this — Streamlit needs to render the UI every time
+        if action == "Get context":
+            if st.button("Run 'Get context'"):
+                context(df, random_index)
 
-            # Always run this — Streamlit needs to render the UI every time
-            if action == "Get context":
-                if st.button("Run 'Get context'"):
-                    context(df, random_index)
+        elif action == "New Highlight":
+            # Layout: full-width green box using columns
+            col1, col2, col3 = st.columns([1, 4, 1])
+            with col2:
+                # Green background using markdown
+                st.markdown("""
+                    <div style="background-color: #28a745; padding: 30px; border-radius: 10px; text-align: center;">
+                """, unsafe_allow_html=True)
 
-            elif action == "New Highlight":
+        # Insert real working button INSIDE the green box
                 if st.button("🚀 Run 'New Highlight'", use_container_width=True):
                     try:
                         exclude_keywords = st.session_state.exclude_keywords
                         row, random_index = get_random_highlight_excluding(df, exclude_keywords)
                         cleaned = re.sub(r"\.\s*\d+", ".", row['highlight'])
-    
+        
                         # Save to session state for reuse
                         st.session_state.random_index = random_index
                         st.session_state.title = row['title']
                         st.session_state.cleaned_highlight = cleaned
-    
+        
                         # Display the new highlight
                         st.markdown("Random Highlight:")
                         st.subheader(f"{row['title']}")
                         st.code(textwrap.fill(cleaned, width=50))
-    
+        
                     except ValueError as e:
                         st.error(f"No suitable highlight found: {e}")
+                # Close green box
+                st.markdown("</div>", unsafe_allow_html=True)
+    
+        elif action == "Show all highlights for a specific title":
+            show_highlights_for_title()  # This function should render UI directly with selectbox
 
-            elif action == "Show all highlights for a specific title":
-                show_highlights_for_title()  # This function should render UI directly with selectbox
-
-            elif action == "Show all titles":
-                if st.button("Run 'Show all titles'"):
-                    process_kindle_sum(kindle_sum)
-
+        elif action == "Show all titles":
+            if st.button("Run 'Show all titles'"):
+                process_kindle_sum(kindle_sum)
+        
 

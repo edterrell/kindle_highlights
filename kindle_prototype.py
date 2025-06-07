@@ -311,13 +311,21 @@ if __name__ == "__main__":
             "What would you like to do next?",
             ("New Highlight", "Get context", "Show all highlights for a specific title", "Show all titles")
         )
+        with st.container():
+            st.markdown("""
+                <div style="background-color: #28a745; padding: 10px; border-radius: 10px; text-align: center;">
+                <p style="color: white; font-size: 18px; font-weight: bold;">Ready? Click below</p>
+                </div>
+            """, unsafe_allow_html=True)
+
+
         # Always run this — Streamlit needs to render the UI every time
         if action == "Get context":
             if st.button("Run 'Get context'"):
                 context(df, random_index)
 
         elif action == "New Highlight":
-            if st.button("🚀 Run 'New Highlight'"):
+            if st.button("🚀 Run 'New Highlight'", use_container_width=True):
                 try:
                     exclude_keywords = st.session_state.exclude_keywords
                     row, random_index = get_random_highlight_excluding(df, exclude_keywords)

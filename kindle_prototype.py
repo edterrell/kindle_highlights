@@ -313,11 +313,11 @@ if __name__ == "__main__":
         )
         # Always run this — Streamlit needs to render the UI every time
         if action == "Get context":
-            if st.button("Run 'Get context'"):
+            if st.button("🚀 RUN 'Get context'"):
                 context(df, random_index)
 
         elif action == "New Highlight":
-            if st.button("🚀 Run 'New Highlight'"):
+            if st.button("🚀 RUN 'New Highlight'"):
                 try:
                     exclude_keywords = st.session_state.exclude_keywords
                     row, random_index = get_random_highlight_excluding(df, exclude_keywords)
@@ -340,7 +340,7 @@ if __name__ == "__main__":
             show_highlights_for_title()  # This function should render UI directly with selectbox
 
         elif action == "Show all titles":
-            if st.button("Run 'Show all titles'"):
+            if st.button("🚀 RUN 'Show all titles'"):
                 process_kindle_sum(kindle_sum)
 
 

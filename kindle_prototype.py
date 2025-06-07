@@ -320,59 +320,59 @@ if __name__ == "__main__":
                 context(df, random_index)
 
         elif action == "New Highlight":
-            # Layout: full-width green box using columns
-            col1, col2, col3 = st.columns([1, 4, 1])
-            with col2:
-                # Top transparent green box (button container)
-                st.markdown("""
-                    <div style="
-                        background-color: rgba(40, 167, 69, 0.25);
-                        padding: 20px;
-                        border-radius: 10px;
-                        text-align: center;
-                        width: 60%;
-                        margin: auto;
-                    ">
-                """, unsafe_allow_html=True)
+             # Layout: green box above and below the button
+             col1, col2, col3 = st.columns([1, 4, 1])
+             with col2:
+                 # Top transparent green box (button container)
+                 st.markdown("""
+                     <div style="
+                         background-color: rgba(40, 167, 69, 0.15);
+                         padding: 20px;
+                         border-radius: 10px;
+                         text-align: center;
+                         width: 60%;
+                         margin: auto;
+                     ">
+                 """, unsafe_allow_html=True)
+            
+                 # Real button (centered inside the box)
+                 if st.button("🚀 Run 'New Highlight'", key="highlight_button"):
+                     try:
+                         exclude_keywords = st.session_state.exclude_keywords
+                         row, random_index = get_random_highlight_excluding(df, exclude_keywords)
+                         cleaned = re.sub(r"\.\s*\d+", ".", row['highlight'])
+            
+                         st.session_state.random_index = random_index
+                         st.session_state.title = row['title']
+                         st.session_state.cleaned_highlight = cleaned
+            
+                         st.markdown("### 🟡 Random Highlight:")
+                         st.subheader(f"{row['title']}")
+                         st.code(textwrap.fill(cleaned, width=50))
+            
+                     except ValueError as e:
+                         st.error(f"No suitable highlight found: {e}")
+            
+                 # Close top green box
+                 st.markdown("</div>", unsafe_allow_html=True)
+            
+                 # Spacer
+                 st.markdown("<br>", unsafe_allow_html=True)
+            
+                 # Bottom green box (empty for now, same size and style)
+                 st.markdown("""
+                     <div style="
+                         background-color: rgba(40, 167, 69, 0.05);
+                         padding: 20px;
+                         border-radius: 10px;
+                         width: 60%;
+                         margin: auto;
+                         text-align: center;
+                     ">
+                         <!-- Future content can go here -->
+                     </div>
+                 """, unsafe_allow_html=True)
 
-                # Insert real working button INSIDE the green box
-                if st.button("🚀 Run 'New Highlight'", key="highlight_button"):
-                    try:
-                        exclude_keywords = st.session_state.exclude_keywords
-                        row, random_index = get_random_highlight_excluding(df, exclude_keywords)
-                        cleaned = re.sub(r"\.\s*\d+", ".", row['highlight'])
-        
-                        # Save to session state for reuse
-                        st.session_state.random_index = random_index
-                        st.session_state.title = row['title']
-                        st.session_state.cleaned_highlight = cleaned
-        
-                        # Display the new highlight
-                        st.markdown("Random Highlight:")
-                        st.subheader(f"{row['title']}")
-                        st.code(textwrap.fill(cleaned, width=50))
-        
-                    except ValueError as e:
-                        st.error(f"No suitable highlight found: {e}")
-                # Close top green box
-                st.markdown("</div>", unsafe_allow_html=True)
-
-                # Spacer
-                st.markdown("<br>", unsafe_allow_html=True)
-
-                # Bottom green box (empty for now, same size and style)
-                st.markdown("""
-                    <div style="
-                        background-color: rgba(40, 167, 69, 0.25);
-                        padding: 20px;
-                        border-radius: 10px;
-                        width: 60%;
-                        margin: auto;
-                        text-align: center;
-                    ">
-                        <!-- Future content can go here -->
-                    </div>
-                """, unsafe_allow_html=True)
     
         elif action == "Show all highlights for a specific title":
             show_highlights_for_title()  # This function should render UI directly with selectbox

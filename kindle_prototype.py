@@ -156,8 +156,6 @@ def show_highlights_for_title():
             wrapped = textwrap.fill(cleaned.strip(), width=50)
             st.text(wrapped)
             st.markdown("---")
-            
-
     
         # Safe filename from title
         safe_title = re.sub(r'[\\/*?:"<>|]', "", selected_title)
@@ -168,7 +166,26 @@ def show_highlights_for_title():
             data=highlights_text,
             file_name=file_name,
             mime="text/plain"
-        )   
+        )
+
+# Search
+def search_highlights():
+    df = st.session_state.get("df")
+    if df is None:
+        st.warning("No data loaded.")
+        return
+
+    #search_these_highlights = df['Highlight'].dropna().unique()
+    search_term = st.text_input("🔍 Search your highlights:")
+    
+    if search_term:
+        results = df[df['Highlight'].str.contains(search_term, case=False, na=False)]
+
+        if results.empty:
+            st.info("No highlights found.")
+        else:
+            st.write(f"Results for '{search_term}':")
+            st.dataframe(results[['Title', 'Author', 'Highlight']])   
 
 # helper function for small screens
 # this is currently only being used in the get_context fuction
@@ -309,7 +326,7 @@ if __name__ == "__main__":
 
         action = st.radio(
             "What would you like to do next?",
-            ("New Highlight", "Get context", "Show all highlights for a specific title", "Show all titles")
+            ("New Highlight", "Get context", "Show all highlights for a specific title", "Search","Show all titles")
         )
         # Always run this — Streamlit needs to render the UI every time
         if action == "Get context":
@@ -338,6 +355,9 @@ if __name__ == "__main__":
 
         elif action == "Show all highlights for a specific title":
             show_highlights_for_title()  # This function should render UI directly with selectbox
+
+        elif action == "Search":
+            search_highlights ()  # This function should render UI directly with selectbox
 
         elif action == "Show all titles":
             if st.button("🚀 RUN 'Show all titles'"):

@@ -185,12 +185,12 @@ def search_highlights():
     if search_term:
         results = df[df['highlight'].str.contains(search_term, case=False, na=False)]
         st.dataframe(results[['title', 'highlight']])
-        
+
         if results.empty:
             st.info("No highlights found.")
         else:
             st.write(f"Results for '{search_term}':")
-            st.dataframe(results[['title', 'author', 'highlight']])   
+            st.dataframe(results[['title', 'highlight']])   
 
 # helper function for small screens
 # this is currently only being used in the get_context fuction

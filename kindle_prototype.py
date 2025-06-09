@@ -339,7 +339,7 @@ if __name__ == "__main__":
                 context(df, random_index)
 
         elif action == "Random Highlight":
-            if st.button("🚀 RUN 'New Highlight'"):
+            if st.button("🚀 RUN 'Random Highlight'"):
                 try:
                     exclude_keywords = st.session_state.exclude_keywords
                     row, random_index = get_random_highlight_excluding(df, exclude_keywords)

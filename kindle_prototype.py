@@ -331,14 +331,14 @@ if __name__ == "__main__":
 
         action = st.radio(
             "What would you like to do next?",
-            ("New Highlight", "Get context", "Show all highlights for a specific title", "Search","Show all titles")
+            ("Random Highlight", "Get context", "Show all highlights for a specific title", "Search","Show all titles")
         )
         # Always run this — Streamlit needs to render the UI every time
         if action == "Get context":
             if st.button("🚀 RUN 'Get context'"):
                 context(df, random_index)
 
-        elif action == "New Highlight":
+        elif action == "Random Highlight":
             if st.button("🚀 RUN 'New Highlight'"):
                 try:
                     exclude_keywords = st.session_state.exclude_keywords

@@ -184,7 +184,8 @@ def search_highlights():
     
     if search_term:
         results = df[df['highlight'].str.contains(search_term, case=False, na=False)]
-
+        st.dataframe(results[['title', 'highlight']])
+        
         if results.empty:
             st.info("No highlights found.")
         else:

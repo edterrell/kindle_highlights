@@ -178,8 +178,8 @@ def search_highlights():
     #search_these_highlights = df['Highlight'].dropna().unique()
     search_term = st.text_input("🔍 Search your highlights:")
 
-    st.write("Full DataFrame columns before search:", df.columns.tolist())
-    st.write("Sample rows:", df.head())
+    #st.write("Full DataFrame columns before search:", df.columns.tolist())
+    #st.write("Sample rows:", df.head())
 
     
     if search_term:

@@ -331,7 +331,11 @@ if __name__ == "__main__":
 
         action = st.radio(
             "What would you like to do next?",
-            ("Random Highlight", "Get context", "Show all highlights for a specific title", "Search","Show all titles")
+            ("Random Highlight", 
+                "Get context", 
+                "Select title - show highlights", 
+                "Search all text",
+                "Show all titles")
         )
         # Always run this — Streamlit needs to render the UI every time
         if action == "Get context":
@@ -358,10 +362,10 @@ if __name__ == "__main__":
                 except ValueError as e:
                     st.error(f"No suitable highlight found: {e}")
 
-        elif action == "Show all highlights for a specific title":
+        elif action == "Select title - show highlights":
             show_highlights_for_title()  # This function should render UI directly with selectbox
 
-        elif action == "Search":
+        elif action == "Search all text":
             search_highlights ()  # This function should render UI directly with selectbox
 
         elif action == "Show all titles":

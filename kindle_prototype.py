@@ -265,49 +265,74 @@ def process_kindle_sum(kindle_sum):
         mime="text/csv"
     )
 
-# Begin execution
-def main():
-
-    st.title("Kindle Highlights Viewer")
+# Split main into smaller functions
+def handle_file_upload():
     uploaded_file = st.file_uploader(
         "Upload your 'My Clippings.txt' file", 
         type=["txt"],
         key="file_upload_main"
     )
+    return uploaded_file
+
+def process_uploaded_file(uploaded_file):
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".txt") as tmp_file:
+        tmp_file.write(uploaded_file.read())
+        tmp_path = tmp_file.name
+
+    df = parse_kindle_highlights(tmp_path)
+    df.sort_values('added_on', inplace=True)
+
+    # Drop clip limit messages and duplicates
+    clip_message = "You have reached the clipping limit for this item"
+    df = df[~df['highlight'].str.contains(clip_message, na=False)]
+    df = df.drop_duplicates(subset=['title', 'location'])
+
+    return df
+
+# Begin execution
+def main():
+    # uploaded_file = st.file_uploader(
+    #     "Upload your 'My Clippings.txt' file", 
+    #     type=["txt"],
+    #     key="file_upload_main"
+    # )
+
+    # if uploaded_file is not None and 'df' not in st.session_state:
+    #     with tempfile.NamedTemporaryFile(delete=False, suffix=".txt") as tmp_file:
+    #         tmp_file.write(uploaded_file.read())
+    #         tmp_path = tmp_file.name
+    #     
+    #     df = parse_kindle_highlights(tmp_path)
+# 
+    #     df.sort_values('added_on',inplace=True)
+    #     kindle_sum = setup_summary(df)
+# 
+    #     # Drop clip limit messages and duplicates with same location values
+    #     clip_message = "You have reached the clipping limit for this item"
+    #     df = df[~df['highlight'].str.contains(clip_message, na=False)]
+    #     df = df.drop_duplicates(subset=['title', 'location'])
+
+    st.title("Kindle Highlights Viewer")
+    uploaded_file = handle_file_upload()
 
     if uploaded_file is not None and 'df' not in st.session_state:
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".txt") as tmp_file:
-            tmp_file.write(uploaded_file.read())
-            tmp_path = tmp_file.name
-        
-        df = parse_kindle_highlights(tmp_path)
-
-        df.sort_values('added_on',inplace=True)
+        df = process_uploaded_file(uploaded_file)
         kindle_sum = setup_summary(df)
 
-        # Drop clip limit messages and duplicates with same location values
-        clip_message = "You have reached the clipping limit for this item"
-        df = df[~df['highlight'].str.contains(clip_message, na=False)]
-        df = df.drop_duplicates(subset=['title', 'location'])
-
-        # Get random title - highlight (excludes keywords)
         # Modify this list to add or change titles to be excluded 
         exclude_keywords = ["Reggie", "Bicycling", "Python"]
         st.session_state.exclude_keywords = exclude_keywords
 
-        
         try:
             row, random_index = get_random_highlight_excluding(df, exclude_keywords)
         except ValueError as e:
             st.error(f"Error: {e}")
             return
-
-        title = row['title']
-        text = row['highlight']
-        cleaned_highlight = re.sub(r"\.\s*\d+", ".", text)
+    
+        cleaned_highlight = re.sub(r"\.\s*\d+", ".", row['highlight'])
        
         # Store in session state
-        st.session_state.title = title
+        st.session_state.title = row['title']
         st.session_state.cleaned_highlight = cleaned_highlight
         st.session_state.df = df
         st.session_state.random_index = random_index

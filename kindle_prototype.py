@@ -194,11 +194,11 @@ def search_highlights():
 
 # helper function for small screens
 # this is currently only being used in the get_context fuction
-def wrapped_streamlit(label, text, width=50):
+def wrapped_streamlit(label, text, width=40):
     if text:
         wrapped_text = textwrap.fill(text, width=width)
         st.markdown(f"**{label}:**")
-        st.code(wrapped_text)
+        st.info(wrapped_text)
     else:
          st.markdown(f"**{label}:** _No highlight available._")
 
@@ -366,7 +366,7 @@ if __name__ == "__main__":
                     # Display the new highlight
                     st.markdown("Random Highlight:")
                     st.subheader(f"{row['title']}")
-                    st.code(textwrap.fill(cleaned, width=50))
+                    st.info(textwrap.fill(cleaned, width=45))
     
                 except ValueError as e:
                     st.error(f"No suitable highlight found: {e}")

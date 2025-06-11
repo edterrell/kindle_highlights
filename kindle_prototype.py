@@ -3,7 +3,6 @@
 # Usage: streamlit run kindle_prototype.py
 # Comments: see README.md
 
-
 import pandas as pd
 import re
 from pathlib import Path
@@ -175,11 +174,7 @@ def search_highlights():
         st.warning("No data loaded.")
         return
 
-    #search_these_highlights = df['Highlight'].dropna().unique()
     search_term = st.text_input("🔍 Search your highlights:")
-
-    #st.write("Full DataFrame columns before search:", df.columns.tolist())
-    #st.write("Sample rows:", df.head())
 
     
     if search_term:
@@ -286,7 +281,6 @@ def process_uploaded_file(uploaded_file):
     clip_message = "You have reached the clipping limit for this item"
     df = df[~df['highlight'].str.contains(clip_message, na=False)]
     df = df.drop_duplicates(subset=['title', 'location'])
-
     return df
 
 # Begin execution
@@ -332,11 +326,6 @@ if __name__ == "__main__":
         st.subheader(f"{st.session_state.title}")
         # retains mono font, no syntax highlight
         st.info(textwrap.fill(st.session_state.cleaned_highlight, width=45))
-    
-
-        
-
-
 
         action = st.radio(
             "What would you like to do next?",

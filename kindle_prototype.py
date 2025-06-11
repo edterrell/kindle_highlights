@@ -330,7 +330,10 @@ if __name__ == "__main__":
     if 'title' in st.session_state and 'cleaned_highlight' in st.session_state:
         st.markdown("Random Highlight")
         st.subheader(f"{st.session_state.title}")
-        st.write(textwrap.fill(st.session_state.cleaned_highlight, width=45))
+        # retains mono font, no syntax highlight
+        st.text(textwrap.fill(st.session_state.cleaned_highlight, width=45))
+        
+
 
 
         action = st.radio(

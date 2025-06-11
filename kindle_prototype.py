@@ -331,7 +331,7 @@ if __name__ == "__main__":
         st.markdown("Random Highlight")
         st.subheader(f"{st.session_state.title}")
         # retains mono font, no syntax highlight
-        st.info(textwrap.fill(st.session_state.cleaned_highlight, width=45)
+        st.info(textwrap.fill(st.session_state.cleaned_highlight, width=45))
     
 
         

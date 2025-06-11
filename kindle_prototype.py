@@ -3,7 +3,6 @@
 # Usage: streamlit run kindle_prototype.py
 # Comments: see README.md
 
-
 import pandas as pd
 import re
 from pathlib import Path
@@ -156,8 +155,6 @@ def show_highlights_for_title():
             wrapped = textwrap.fill(cleaned.strip(), width=50)
             st.text(wrapped)
             st.markdown("---")
-            
-
     
         # Safe filename from title
         safe_title = re.sub(r'[\\/*?:"<>|]', "", selected_title)
@@ -168,15 +165,35 @@ def show_highlights_for_title():
             data=highlights_text,
             file_name=file_name,
             mime="text/plain"
-        )   
+        )
+
+# Search
+def search_highlights():
+    df = st.session_state.get("df")
+    if df is None:
+        st.warning("No data loaded.")
+        return
+
+    search_term = st.text_input("🔍 Search your highlights:")
+
+    
+    if search_term:
+        results = df[df['highlight'].str.contains(search_term, case=False, na=False)]
+        #st.dataframe(results[['title', 'highlight']])
+
+        if results.empty:
+            st.info("No highlights found.")
+        else:
+            st.write(f"Results for '{search_term}':")
+            st.dataframe(results[['title', 'highlight']])   
 
 # helper function for small screens
 # this is currently only being used in the get_context fuction
-def wrapped_streamlit(label, text, width=50):
+def wrapped_streamlit(label, text, width=40):
     if text:
         wrapped_text = textwrap.fill(text, width=width)
         st.markdown(f"**{label}:**")
-        st.code(wrapped_text)
+        st.info(wrapped_text)
     else:
          st.markdown(f"**{label}:** _No highlight available._")
 
@@ -243,49 +260,52 @@ def process_kindle_sum(kindle_sum):
         mime="text/csv"
     )
 
-# Begin execution
-def main():
-
-    st.title("Kindle Highlights Viewer")
+# Split main into smaller functions
+def handle_file_upload():
     uploaded_file = st.file_uploader(
         "Upload your 'My Clippings.txt' file", 
         type=["txt"],
         key="file_upload_main"
     )
+    return uploaded_file
+
+def process_uploaded_file(uploaded_file):
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".txt") as tmp_file:
+        tmp_file.write(uploaded_file.read())
+        tmp_path = tmp_file.name
+
+    df = parse_kindle_highlights(tmp_path)
+    df.sort_values('added_on', inplace=True)
+
+    # Drop clip limit messages and duplicates
+    clip_message = "You have reached the clipping limit for this item"
+    df = df[~df['highlight'].str.contains(clip_message, na=False)]
+    df = df.drop_duplicates(subset=['title', 'location'])
+    return df
+
+# Begin execution
+def main():
+    st.title("Kindle Highlights Viewer")
+    uploaded_file = handle_file_upload()
 
     if uploaded_file is not None and 'df' not in st.session_state:
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".txt") as tmp_file:
-            tmp_file.write(uploaded_file.read())
-            tmp_path = tmp_file.name
-        
-        df = parse_kindle_highlights(tmp_path)
-
-        df.sort_values('added_on',inplace=True)
+        df = process_uploaded_file(uploaded_file)
         kindle_sum = setup_summary(df)
 
-        # Drop clip limit messages and duplicates with same location values
-        clip_message = "You have reached the clipping limit for this item"
-        df = df[~df['highlight'].str.contains(clip_message, na=False)]
-        df = df.drop_duplicates(subset=['title', 'location'])
-
-        # Get random title - highlight (excludes keywords)
         # Modify this list to add or change titles to be excluded 
         exclude_keywords = ["Reggie", "Bicycling", "Python"]
         st.session_state.exclude_keywords = exclude_keywords
 
-        
         try:
             row, random_index = get_random_highlight_excluding(df, exclude_keywords)
         except ValueError as e:
             st.error(f"Error: {e}")
             return
-
-        title = row['title']
-        text = row['highlight']
-        cleaned_highlight = re.sub(r"\.\s*\d+", ".", text)
+    
+        cleaned_highlight = re.sub(r"\.\s*\d+", ".", row['highlight'])
        
         # Store in session state
-        st.session_state.title = title
+        st.session_state.title = row['title']
         st.session_state.cleaned_highlight = cleaned_highlight
         st.session_state.df = df
         st.session_state.random_index = random_index
@@ -304,20 +324,24 @@ if __name__ == "__main__":
     if 'title' in st.session_state and 'cleaned_highlight' in st.session_state:
         st.markdown("Random Highlight")
         st.subheader(f"{st.session_state.title}")
-        st.code(textwrap.fill(st.session_state.cleaned_highlight, width=50))
-
+        # retains mono font, no syntax highlight
+        st.info(textwrap.fill(st.session_state.cleaned_highlight, width=45))
 
         action = st.radio(
             "What would you like to do next?",
-            ("New Highlight", "Get context", "Show all highlights for a specific title", "Show all titles")
+            ("Random Highlight", 
+                "Get context", 
+                "Select title - show highlights", 
+                "Search all text",
+                "Show all titles")
         )
         # Always run this — Streamlit needs to render the UI every time
         if action == "Get context":
             if st.button("🚀 RUN 'Get context'"):
                 context(df, random_index)
 
-        elif action == "New Highlight":
-            if st.button("🚀 RUN 'New Highlight'"):
+        elif action == "Random Highlight":
+            if st.button("🚀 RUN 'Random Highlight'"):
                 try:
                     exclude_keywords = st.session_state.exclude_keywords
                     row, random_index = get_random_highlight_excluding(df, exclude_keywords)
@@ -331,13 +355,16 @@ if __name__ == "__main__":
                     # Display the new highlight
                     st.markdown("Random Highlight:")
                     st.subheader(f"{row['title']}")
-                    st.code(textwrap.fill(cleaned, width=50))
+                    st.info(textwrap.fill(cleaned, width=45))
     
                 except ValueError as e:
                     st.error(f"No suitable highlight found: {e}")
 
-        elif action == "Show all highlights for a specific title":
+        elif action == "Select title - show highlights":
             show_highlights_for_title()  # This function should render UI directly with selectbox
+
+        elif action == "Search all text":
+            search_highlights ()  # This function should render UI directly with selectbox
 
         elif action == "Show all titles":
             if st.button("🚀 RUN 'Show all titles'"):

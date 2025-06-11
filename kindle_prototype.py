@@ -291,27 +291,6 @@ def process_uploaded_file(uploaded_file):
 
 # Begin execution
 def main():
-    # uploaded_file = st.file_uploader(
-    #     "Upload your 'My Clippings.txt' file", 
-    #     type=["txt"],
-    #     key="file_upload_main"
-    # )
-
-    # if uploaded_file is not None and 'df' not in st.session_state:
-    #     with tempfile.NamedTemporaryFile(delete=False, suffix=".txt") as tmp_file:
-    #         tmp_file.write(uploaded_file.read())
-    #         tmp_path = tmp_file.name
-    #     
-    #     df = parse_kindle_highlights(tmp_path)
-# 
-    #     df.sort_values('added_on',inplace=True)
-    #     kindle_sum = setup_summary(df)
-# 
-    #     # Drop clip limit messages and duplicates with same location values
-    #     clip_message = "You have reached the clipping limit for this item"
-    #     df = df[~df['highlight'].str.contains(clip_message, na=False)]
-    #     df = df.drop_duplicates(subset=['title', 'location'])
-
     st.title("Kindle Highlights Viewer")
     uploaded_file = handle_file_upload()
 

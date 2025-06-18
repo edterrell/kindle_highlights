@@ -20,7 +20,7 @@ This bundle includes:
    “Would you like to add this shortcut?” → Tap **Add Shortcut**
 
 4. Once added, you can:
-   - Test it with Siri: **“Hey Siri, Remember Highlights”**
+   - Test it with Siri: **“Hey Siri, Get Highlights”**
 
 ---
 

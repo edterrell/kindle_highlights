@@ -11,10 +11,19 @@ This bundle includes:
 
 ### On iPhone or iPad:
 
-1. Open the **Shortcuts** app.
-2. Tap the `+` to create a new shortcut 
-3. Rename it to **Get Highlights** (if needed).
-4. Test with Siri: “Hey Siri, Get Highlights”.
+1. Open the **Files** app and locate this folder (`iOS_icon_shortcut`)  
+   — or open the ZIP and extract it to a convenient location.
+
+2. Tap on the file named **Get Highlights.shortcut**
+
+3. iOS will prompt:  
+   “Would you like to add this shortcut?” → Tap **Add Shortcut**
+
+4. Once added, you can:
+   - Test it with Siri: **“Hey Siri, Remember Highlights”**
+
+---
+
 
 ---
 

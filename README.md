@@ -22,7 +22,8 @@ The easiest way to use this tool is through the live Streamlit web app:
 
 #### 	🎲 Random highlight browser with local context
 #### 	📖 View all highlights from a selected book
-#### 	📚 See a full list of your books (with title, author, and year read)
+#### 	📚 See a complete list of your books (with title, author, and year read)
+####  🔍 Full text search
 
 ---
 

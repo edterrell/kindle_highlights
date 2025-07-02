@@ -14,6 +14,7 @@ The easiest way to use this tool is through the live Streamlit web app:
 1. Export your Kindle highlights (`My Clippings.txt`) from your device.
 2. Upload the file into the app.
 3. Browse random quotes, search by title/author, or view all your books!
+4. Full text search and an ad-free viewing experience
 
 ---
 

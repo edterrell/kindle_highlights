@@ -121,7 +121,6 @@ def get_random_highlight_excluding(df, exclude_keywords):
     # Return the row itself and its original index in the full DataFrame
     return random_row.iloc[0], random_row.index[0]
 
-
 # show all highlights for a specific title
 def show_highlights_for_title():
     df = st.session_state.get("df")
@@ -131,15 +130,7 @@ def show_highlights_for_title():
 
     unique_titles = sorted(df['title'].dropna().unique())
 
-    #search_term = st.text_input("Search titles and authors:")
-    #if search_term:
     filtered_titles = [title for title in unique_titles]
-    #else:
-    #    filtered_titles = unique_titles
-#
-    #if not filtered_titles:
-    #    st.warning("No matching titles found.")
-    #    return
 
     selected_title = st.selectbox(
         "Search titles or select:",
@@ -320,7 +311,7 @@ def main():
         st.session_state["df"] = df  # Save back if needed
         kindle_sum = setup_summary(df)
 
-        # Modify this list to add or change titles to be excluded 
+        # Titles containing these words will be excluded 
         exclude_keywords = ["Reggie", "Bicycling", "Python"]
         st.session_state.exclude_keywords = exclude_keywords
 

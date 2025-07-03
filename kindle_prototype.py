@@ -131,7 +131,7 @@ def show_highlights_for_title():
 
     unique_titles = sorted(df['title'].dropna().unique())
 
-    search_term = st.text_input("Search for a book title:")
+    search_term = st.text_input("Search titles and authors:")
     if search_term:
         filtered_titles = [title for title in unique_titles if search_term.lower() in title.lower()]
     else:
@@ -142,9 +142,9 @@ def show_highlights_for_title():
         return
 
     selected_title = st.selectbox(
-        "Click to scroll matched titles and authors:",
+        "Click to select other titles:",
         options=filtered_titles,
-        index=None,
+        index=0 if filtered_titles else None,
         key="title_select"
     )
 
@@ -341,7 +341,7 @@ if __name__ == "__main__":
             "What would you like to do next?",
             ("Random Highlight", 
                 "Get context", 
-                "Select title - show highlights", 
+                "Show highlights for selected title", 
                 "Search all text",
                 "Show all titles")
         )
@@ -370,7 +370,7 @@ if __name__ == "__main__":
                 except ValueError as e:
                     st.error(f"No suitable highlight found: {e}")
 
-        elif action == "Select title - show highlights":
+        elif action == "Show highlights for selected title":
             show_highlights_for_title()  # This function should render UI directly with selectbox
 
         elif action == "Search all text":

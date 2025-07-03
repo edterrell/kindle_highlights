@@ -1,3 +1,4 @@
 #ignore all .csv files
 *.csv
 .DS_Store
+Searchbox.py

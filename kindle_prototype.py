@@ -129,12 +129,21 @@ def show_highlights_for_title():
         st.warning("No data loaded.")
         return
 
-    unique_titles = df['title'].dropna().unique()
-    unique_titles.sort()
+    unique_titles = sorted(df['title'].dropna().unique())
+
+    search_term = st.text_input("Search for a book title:")
+    if search_term:
+        filtered_titles = [title for title in unique_titles if search_term.lower() in title.lower()]
+    else:
+        filtered_titles = unique_titles
+
+    if not filtered_titles:
+        st.warning("No matching titles found.")
+        return
 
     selected_title = st.selectbox(
-        "Select a book title:",
-        options=unique_titles,
+        "Click to scroll matched titles and authors:",
+        options=filtered_titles,
         index=None,
         key="title_select"
     )
@@ -166,6 +175,7 @@ def show_highlights_for_title():
             file_name=file_name,
             mime="text/plain"
         )
+
 
 # Search
 def search_highlights():

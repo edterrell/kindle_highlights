@@ -131,18 +131,18 @@ def show_highlights_for_title():
 
     unique_titles = sorted(df['title'].dropna().unique())
 
-    search_term = st.text_input("Search titles and authors:")
-    if search_term:
-        filtered_titles = [title for title in unique_titles if search_term.lower() in title.lower()]
-    else:
-        filtered_titles = unique_titles
-
-    if not filtered_titles:
-        st.warning("No matching titles found.")
-        return
+    #search_term = st.text_input("Search titles and authors:")
+    #if search_term:
+    filtered_titles = [title for title in unique_titles]
+    #else:
+    #    filtered_titles = unique_titles
+#
+    #if not filtered_titles:
+    #    st.warning("No matching titles found.")
+    #    return
 
     selected_title = st.selectbox(
-        "Click to select other titles:",
+        "Search titles or select:",
         options=filtered_titles,
         index=0 if filtered_titles else None,
         key="title_select"
@@ -175,6 +175,22 @@ def show_highlights_for_title():
             file_name=file_name,
             mime="text/plain"
         )
+
+import re
+
+# Clean up titles
+def extract_title_author(text):
+    # Find all parenthetical groups
+    parens = re.findall(r'\([^)]*\)', text)
+    if not parens:
+        return text.strip()  # nothing to clean
+
+    # Extract last group as author, remove the rest
+    author = parens[-1]
+    text_without_parens = re.sub(r'\s*\([^)]*\)', '', text).strip()
+    
+    # Reattach just the author
+    return f"{text_without_parens} {author}"
 
 
 # Search
@@ -300,6 +316,8 @@ def main():
 
     if uploaded_file is not None and 'df' not in st.session_state:
         df = process_uploaded_file(uploaded_file)
+        df["title"] = df["title"].apply(extract_title_author)
+        st.session_state["df"] = df  # Save back if needed
         kindle_sum = setup_summary(df)
 
         # Modify this list to add or change titles to be excluded 
@@ -315,9 +333,9 @@ def main():
         cleaned_highlight = re.sub(r"\.\s*\d+", ".", row['highlight'])
        
         # Store in session state
+        st.session_state.df = df
         st.session_state.title = row['title']
         st.session_state.cleaned_highlight = cleaned_highlight
-        st.session_state.df = df
         st.session_state.random_index = random_index
         st.session_state.kindle_sum = kindle_sum
         st.success("Highlights loaded successfully!")

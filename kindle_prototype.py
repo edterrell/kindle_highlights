@@ -132,12 +132,19 @@ def show_highlights_for_title():
 
     filtered_titles = [title for title in unique_titles]
 
+    placeholder = "Select a title..."
+    options_with_placeholder = [placeholder] + filtered_titles
+
     selected_title = st.selectbox(
         "Search titles or select:",
-        options=filtered_titles,
-        index=0 if filtered_titles else None,
+        options=options_with_placeholder,
+        index=0,
         key="title_select"
     )
+    
+    # Ignore the placeholder if selected
+    #if selected_title == placeholder:
+    #return
 
     if selected_title:
         st.subheader(f"{selected_title}")
@@ -196,8 +203,6 @@ def search_highlights():
     
     if search_term:
         results = df[df['highlight'].str.contains(search_term, case=False, na=False)]
-        #st.dataframe(results[['title', 'highlight']])
-
         if results.empty:
             st.info("No highlights found.")
         else:

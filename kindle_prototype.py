@@ -143,8 +143,8 @@ def show_highlights_for_title():
     )
     
     # Ignore the placeholder if selected
-    #if selected_title == placeholder:
-    #return
+    if selected_title == placeholder:
+        return
 
     if selected_title:
         st.subheader(f"{selected_title}")
